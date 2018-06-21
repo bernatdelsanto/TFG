@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_discover"
+            android:icon="@drawable/ic_outline_public"
+            android:title="Discover" />
+        <item
+
+            android:id="@+id/nav_mylists"
+            android:icon="@drawable/ic_list"
+            android:title="My Lists" />
+        <item
+            android:id="@+id/nav_followinglists"
+            android:icon="@drawable/ic_person_add_black_24dp"
+            android:title="Following Lists" />
+
+        <item
+            android:id="@+id/nav_searchlist"
+            android:icon="@drawable/places_ic_search"
+            android:title="Search List" />
+
+
+    </group>
+
+    <item android:title="Communicate">
+        <menu>
+            <group android:checkableBehavior="single">
+                <item
+                    android:id="@+id/nav_login"
+                    android:icon="@drawable/ic_outline_account_circle"
+                    android:title="Login" />
+
+            </group>
+        </menu>
+
+    </item>
+
+</menu>

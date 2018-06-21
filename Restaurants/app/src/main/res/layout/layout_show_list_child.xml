@@ -1,0 +1,25 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/list_size" >
+
+    <TextView
+        android:id="@+id/listName"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:gravity="fill_vertical"
+        android:padding="@dimen/list_margin"
+        android:layout_marginStart="@dimen/list_child_start_margin"
+        android:text="Name" />
+
+    <ImageView
+        android:id="@+id/deleteListChildView"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:clickable="true"
+        app:srcCompat="@drawable/ic_delete" />
+
+    />
+</LinearLayout>

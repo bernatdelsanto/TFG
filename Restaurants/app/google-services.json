@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "964048807679",
+    "firebase_url": "https://modular-house-204314.firebaseio.com",
+    "project_id": "modular-house-204314",
+    "storage_bucket": "modular-house-204314.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:964048807679:android:e137a148301e3a03",
+        "android_client_info": {
+          "package_name": "com.example.hat.restaurants"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "964048807679-7evks821cdikdi69hhs2q3h1gi1e2v8c.apps.googleusercontent.com",
+          "client_type": 3
+        },
+        {
+          "client_id": "964048807679-7evks821cdikdi69hhs2q3h1gi1e2v8c.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCf0g7VMTZ2scE5dQstf69eK5G27yrjp9k"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
