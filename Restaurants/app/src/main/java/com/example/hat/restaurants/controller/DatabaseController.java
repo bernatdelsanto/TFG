@@ -8,6 +8,7 @@ import android.util.Log;
 import com.example.hat.restaurants.MyListsAdapter;
 import com.example.hat.restaurants.model.Place;
 import com.example.hat.restaurants.model.PlaceList;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -46,34 +47,10 @@ public class DatabaseController {
         });
     }
 
-    public void addPlaceListToRecyclerView(final RecyclerView recyclerView, final String listID, final String listName){
+    public void addPlaceListToRecyclerViewById(final RecyclerView recyclerView, final String listID, final String listName){
 
         final ArrayList<Place> places = new ArrayList<>();
-        /*databaseReference.child("lists").child(listID).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                PlaceList placeList = new PlaceList(listName,listID,places);
-                MyListsAdapter oldAdapter =(MyListsAdapter)recyclerView.getAdapter();
-                ArrayList<PlaceList> listOfLists = new ArrayList<>((ArrayList<PlaceList>)oldAdapter.getList());
-                Boolean newList = true;
-                for(PlaceList p : listOfLists){
-                    if(p.getId()==listID){
-                        newList=false;
-                        break;
-                    }
-                }
-                if(newList){
-                    listOfLists.add(placeList);
-                    MyListsAdapter newAdapter = new MyListsAdapter(listOfLists,oldAdapter.getPermission(),recyclerView);
-                    recyclerView.setAdapter(newAdapter);
-                }
-            }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });*/
         databaseReference.child("lists").child(listID).addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
@@ -136,5 +113,15 @@ public class DatabaseController {
 
     public void deletePlaceFromList(String placeID, String listID) {
         databaseReference.child("lists").child(listID).child(placeID).removeValue();
+    }
+
+    public void followList(String id, String name) {
+        String uID = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        databaseReference.child("users").child(uID).child("following_lists").child(id).setValue(name);
+    }
+
+    public void unfollowList(String id) {
+        String uID = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        databaseReference.child("users").child(uID).child("following_lists").child(id).setValue(null);
     }
 }

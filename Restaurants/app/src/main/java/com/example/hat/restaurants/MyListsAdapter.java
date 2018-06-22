@@ -26,13 +26,17 @@ class ListViewHolder extends GroupViewHolder {
     public ImageView deleteView;
     public TextView listName;
     private ImageView arrow;
+    public ImageView followView;
+    public ImageView unfollowView;
 
 
         public ListViewHolder(View itemView) {
             super(itemView);
             listName = itemView.findViewById(R.id.listName);
             deleteView = itemView.findViewById(R.id.deleteListParentView);
-            arrow = (ImageView) itemView.findViewById(R.id.list_item_parent_arrow);
+            arrow =  itemView.findViewById(R.id.list_item_parent_arrow);
+            followView = itemView.findViewById(R.id.followListView);
+            unfollowView = itemView.findViewById(R.id.unfollowListView);
         }
 
         public void setListName(ExpandableGroup group) {
@@ -89,7 +93,8 @@ class PlaceViewHolder extends ChildViewHolder {
 }
 public class MyListsAdapter extends ExpandableRecyclerViewAdapter<ListViewHolder,PlaceViewHolder> {
     public static final int PERMISSION_EDIT = 0;
-    public static final int PERMISSION_READ = 1;
+    public static final int PERMISSION_FOLLOW = 1;
+    public static final int PERMISSION_SEARCH = 2;
     public final DatabaseController databaseController = new DatabaseController();
     public ArrayList<PlaceList> lists;
     public RecyclerView recyclerView;
@@ -132,8 +137,8 @@ public class MyListsAdapter extends ExpandableRecyclerViewAdapter<ListViewHolder
                     notifyDataSetChanged();
                 }
             });
-        }else if(permission==PERMISSION_READ){
-            holder.deleteView.setVisibility(View.INVISIBLE);
+        }else if(permission==PERMISSION_FOLLOW){
+            holder.deleteView.setVisibility(View.GONE);
         }
         holder.setPlaceName(place.getName());
     }
@@ -145,6 +150,8 @@ public class MyListsAdapter extends ExpandableRecyclerViewAdapter<ListViewHolder
         holder.setListName(group);
         if(permission==PERMISSION_EDIT){
             holder.deleteView.setVisibility(View.VISIBLE);
+            holder.followView.setVisibility(View.GONE);
+            holder.unfollowView.setVisibility(View.GONE);
             holder.deleteView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -153,8 +160,40 @@ public class MyListsAdapter extends ExpandableRecyclerViewAdapter<ListViewHolder
                     notifyDataSetChanged();
                 }
             });
-        }else if(permission==PERMISSION_READ){
-            holder.deleteView.setVisibility(View.INVISIBLE);
+        }else if(permission==PERMISSION_FOLLOW){
+            holder.deleteView.setVisibility(View.GONE);
+            holder.followView.setVisibility(View.GONE);
+            holder.unfollowView.setVisibility(View.VISIBLE);
+            holder.unfollowView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    databaseController.unfollowList(placeList.getId());
+                    getGroups().remove(flatPosition);
+                    notifyDataSetChanged();
+                }
+            });
+        }else if (permission==PERMISSION_SEARCH){
+            holder.deleteView.setVisibility(View.GONE);
+            final ImageView unfollowView = holder.unfollowView;
+            unfollowView.setVisibility(View.GONE);
+            final ImageView followView = holder.followView;
+            followView.setVisibility(View.VISIBLE);
+            followView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    databaseController.followList(placeList.getId(),placeList.getName());
+                    followView.setVisibility(View.GONE);
+                    unfollowView.setVisibility(View.VISIBLE);
+                }
+            });
+            unfollowView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    databaseController.unfollowList(placeList.getId());
+                    unfollowView.setVisibility(View.GONE);
+                    followView.setVisibility(View.VISIBLE);
+                }
+            });
         }
     }
     public List<? extends ExpandableGroup> getList(){

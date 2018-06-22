@@ -5,6 +5,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -18,7 +19,10 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.SearchView;
 
+import com.example.hat.restaurants.model.Place;
 import com.example.hat.restaurants.model.PlaceList;
+import com.google.android.gms.flags.impl.DataUtils;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -74,18 +78,9 @@ public class SearchListFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_searchlist_list, container, false);
+        getActivity().setTitle("Search List");
         setHasOptionsMenu(true);
-        // Set the adapter
-        if (view instanceof RecyclerView) {
-            Context context = view.getContext();
-             recyclerView= (RecyclerView) view;
-            if (mColumnCount <= 1) {
-                recyclerView.setLayoutManager(new LinearLayoutManager(context));
-            } else {
-                recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
-            }
-            recyclerView.setAdapter(new MySearchListRecyclerViewAdapter(searchResults, mListener));
-        }
+        recyclerView = view.findViewById(R.id.list);
         return view;
     }
 
@@ -159,18 +154,85 @@ public class SearchListFragment extends Fragment {
 
     private void searchList(String listName){
         final String name = listName;
-        final MySearchListRecyclerViewAdapter adapter = (MySearchListRecyclerViewAdapter) recyclerView.getAdapter();
-         databaseReference.child("lists").addListenerForSingleValueEvent(new ValueEventListener() {
+        final MyListsAdapter adapter = new MyListsAdapter(searchResults, MyListsAdapter.PERMISSION_SEARCH,recyclerView);
+
+        recyclerView.setAdapter(adapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        //TODO IMPORTANT: Check if the user is following this one etc. Maybe check in the adapter?
+        databaseReference.child("lists").addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+                if(dataSnapshot.hasChild("name")){
+                    ArrayList<Place> places = new ArrayList<>();
+                    String listName = dataSnapshot.child("name").getValue(String.class);
+                    //TODO: Is it worth importing APACHE for StringUtils for getJaroWinklerDistance or similar?
+                     if(listName.equals(name)){
+                        for(DataSnapshot snap:dataSnapshot.getChildren()) {
+                            Place place = null;
+                            if (snap.hasChild("l")) {
+                                DataSnapshot location = snap.child("l");
+                                Double latitudeD = location.child("0").getValue(Double.class);
+                                Float latitude = latitudeD.floatValue();
+                                Double longitudeD = location.child("1").getValue(Double.class);
+                                Float longitude = longitudeD.floatValue();
+                                String name = snap.child("name").getValue(String.class);
+                                place = new Place(snap.getKey(), name, latitude, longitude);
+                                places.add(place);
+                            }
+                        }
+                        PlaceList placeList = new PlaceList(listName,dataSnapshot.getKey(),places);
+
+                        MyListsAdapter oldAdapter =(MyListsAdapter)recyclerView.getAdapter();
+                        ArrayList<PlaceList> listOfLists = new ArrayList<>((ArrayList<PlaceList>)oldAdapter.getList());
+
+                        listOfLists.add(placeList);
+                        MyListsAdapter newAdapter = new MyListsAdapter(listOfLists,oldAdapter.getPermission(),recyclerView);
+                        recyclerView.setAdapter(newAdapter);
+
+
+
+                    }
+                }
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+                String listID = dataSnapshot.getKey();
+                for(PlaceList p : searchResults){
+                    if(p.getId()==listID){
+                        searchResults.remove(p);
+                        break;
+                    }
+                }
+                adapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+         /*databaseReference.child("lists").addListenerForSingleValueEvent(new ValueEventListener() {
              @Override
              public void onDataChange(@NonNull DataSnapshot dataSnapshot) {//TODO: this only works when added, not on delete or modify (low priority)
                  for(DataSnapshot s : dataSnapshot.getChildren()){
                      String listName = s.child("name").getValue(String.class);
                      if(listName.equals(name)){
-                         /*PlaceList place = new PlaceList (name,s.getKey());
+                         PlaceList place = new PlaceList (name,s.getKey());
                          if(!searchResults.contains(place)){
                              searchResults.add(place);
                              adapter.notifyDataSetChanged();
-                         }*/ //TODO: ADAPT
+                         }
                      }
                  }
              }
@@ -179,7 +241,7 @@ public class SearchListFragment extends Fragment {
              public void onCancelled(@NonNull DatabaseError databaseError) {
 
              }
-         });
+         });*/
 
     }
 }

@@ -74,7 +74,7 @@ public class AddPlaceDialogFragment extends AppCompatDialogFragment {
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 String listName = dataSnapshot.getValue(String.class);
                 String listID = dataSnapshot.getKey();
-                PlaceList thisPlace = new PlaceList(listName,listID,new ArrayList<Place>()); //DUMMY
+                PlaceList thisPlace = new PlaceList(listName,listID,new ArrayList<Place>());
                 placeList.add(thisPlace); //TODO: from place id, only show the lists that don't have this place.
 
                 adapter.notifyDataSetChanged();

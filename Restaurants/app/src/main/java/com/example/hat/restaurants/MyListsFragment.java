@@ -117,8 +117,7 @@ public class MyListsFragment extends Fragment {
                 String listName = dataSnapshot.getValue(String.class);
                 String listID = dataSnapshot.getKey();
                 DatabaseController controller= new DatabaseController();
-                controller.addPlaceListToRecyclerView(recyclerView,listID,listName);
-
+                controller.addPlaceListToRecyclerViewById(recyclerView,listID,listName);
 
             }
 

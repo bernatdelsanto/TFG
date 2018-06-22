@@ -230,7 +230,10 @@ public class Discover extends Fragment implements OnMapReadyCallback , AddPlaceD
             addMarker(pp, "Universitat de Barcelona",DEFAULT_MARKER_HUE);
             moveCamera(pp,DEFAULT_ZOOM);
         }
-        map.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+
+        /*
+        *TODO: on click geolocates place
+        * map.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
 
             @Override
             public void onMapClick(LatLng point) {
@@ -239,7 +242,7 @@ public class Discover extends Fragment implements OnMapReadyCallback , AddPlaceD
                 //remove previously placed Marker
 
             }
-        });;
+        });;*/
         refreshLists();
 
 
@@ -266,6 +269,7 @@ public class Discover extends Fragment implements OnMapReadyCallback , AddPlaceD
                 });
                 databaseReference.child(s).child(focusedPlace.getId()).child("name").setValue(focusedPlace.getName());
             }
+            focusedMarker.remove();
         }
     }
 
@@ -553,7 +557,7 @@ public class Discover extends Fragment implements OnMapReadyCallback , AddPlaceD
         map.setPadding(0,0,0,size);
     }
     public void removeFocusedPlace(){
-        focusedMarker.remove();
+        if (focusedMarker!= null){focusedMarker.remove();}
         focusedPlace = null;
         addPlaceFloatingButton.hide();
         map.setPadding(0,0,0,0);

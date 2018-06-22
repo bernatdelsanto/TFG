@@ -141,10 +141,7 @@ private ActionBarDrawerToggle toggle;
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
+
 
         return super.onOptionsItemSelected(item);
     }
@@ -177,17 +174,15 @@ private ActionBarDrawerToggle toggle;
             manager.beginTransaction().replace(R.id.mainLayout,discoverFragment).commit();
 
         }else if(id == R.id.nav_mylists){//TODO: only if user logged in
-            setTitle("My Lists");
             MyListsFragment myListsFragmentFragment = new MyListsFragment();
             FragmentManager manager = getSupportFragmentManager();
             manager.beginTransaction().replace(R.id.mainLayout,myListsFragmentFragment).commit();
         }else if (id == R.id.nav_searchlist){
-            setTitle("Search List");
+
             SearchListFragment searchListFragment = new SearchListFragment();
             FragmentManager manager = getSupportFragmentManager();
             manager.beginTransaction().replace(R.id.mainLayout,searchListFragment).commit();
         }else if (id == R.id.nav_followinglists){
-            setTitle("Following Lists");
             FollowingListsFragment followingListsFragment = new FollowingListsFragment();
             FragmentManager manager = getSupportFragmentManager();
             manager.beginTransaction().replace(R.id.mainLayout,followingListsFragment).commit();

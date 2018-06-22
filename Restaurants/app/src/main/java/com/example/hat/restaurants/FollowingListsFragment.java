@@ -6,13 +6,16 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.example.hat.restaurants.controller.DatabaseController;
 import com.example.hat.restaurants.model.PlaceList;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
@@ -78,7 +81,6 @@ public class FollowingListsFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
-        getActivity().setTitle("My Lists");
 
     }
 
@@ -87,19 +89,20 @@ public class FollowingListsFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_my_lists, container, false);
-       /* addListButton = view.findViewById(R.id.addListButton);
+        getActivity().setTitle("Following Lists");
+        addListButton = view.findViewById(R.id.addListButton);
         addListButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-                AddListDialogFragment newFragment = new AddListDialogFragment();
-                FragmentTransaction transaction = fragmentManager.beginTransaction();
-                transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-                transaction.add(R.id.drawer_layout, newFragment).addToBackStack(null).commit();
+                SearchListFragment searchListFragment = new SearchListFragment();
+                FragmentManager manager = getActivity().getSupportFragmentManager();
+                manager.beginTransaction().replace(R.id.mainLayout,searchListFragment).commit();
+                NavigationView nav_search = getActivity().findViewById(R.id.nav_view);
+                nav_search.setCheckedItem(R.id.nav_searchlist);
             }
-        });*/
+        });
         recyclerView = view.findViewById(R.id.listsView);
-        final EditRecyclerViewAdapter adapter = new EditRecyclerViewAdapter(placeList,getContext());
+        final MyListsAdapter adapter = new MyListsAdapter(placeList,MyListsAdapter.PERMISSION_FOLLOW,recyclerView);
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
@@ -109,9 +112,8 @@ public class FollowingListsFragment extends Fragment {
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
                 String listName = dataSnapshot.getValue(String.class);
                 String listID = dataSnapshot.getKey();
-                //PlaceList thisPlace = new PlaceList(listName,listID); TODO: ADAPT WITH NEW PLACELIST
-                //placeList.add(thisPlace);
-                adapter.notifyDataSetChanged();
+                DatabaseController controller= new DatabaseController();
+                controller.addPlaceListToRecyclerViewById(recyclerView,listID,listName);
             }
 
             @Override
