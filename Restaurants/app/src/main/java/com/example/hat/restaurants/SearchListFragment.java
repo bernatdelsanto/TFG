@@ -29,6 +29,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.similarity.JaroWinklerDistance;
+
 import java.util.ArrayList;
 
 /**
@@ -47,7 +50,7 @@ public class SearchListFragment extends Fragment {
     private ArrayList<PlaceList> searchResults = new ArrayList<>();
     private DatabaseReference databaseReference;
     private RecyclerView recyclerView;
-
+    private double STRING_DISTANCE = 0.95;
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
@@ -165,8 +168,10 @@ public class SearchListFragment extends Fragment {
                 if(dataSnapshot.hasChild("name")){
                     ArrayList<Place> places = new ArrayList<>();
                     String listName = dataSnapshot.child("name").getValue(String.class);
-                    //TODO: Is it worth importing APACHE for StringUtils for getJaroWinklerDistance or similar?
-                     if(listName.equals(name)){
+                    listName.toLowerCase().trim();
+                    JaroWinklerDistance comparator = new JaroWinklerDistance();
+                    Double distance = comparator.apply(listName.toLowerCase().trim(),name.toLowerCase().trim());
+                     if(distance>=STRING_DISTANCE){
                         for(DataSnapshot snap:dataSnapshot.getChildren()) {
                             Place place = null;
                             if (snap.hasChild("l")) {
@@ -180,6 +185,7 @@ public class SearchListFragment extends Fragment {
                                 places.add(place);
                             }
                         }
+                        //TODO: order places by JAROWINKLER distance
                         PlaceList placeList = new PlaceList(listName,dataSnapshot.getKey(),places);
 
                         MyListsAdapter oldAdapter =(MyListsAdapter)recyclerView.getAdapter();

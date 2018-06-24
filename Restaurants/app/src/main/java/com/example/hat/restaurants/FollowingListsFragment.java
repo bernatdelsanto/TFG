@@ -124,13 +124,17 @@ public class FollowingListsFragment extends Fragment {
             @Override
             public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
                 String listID = dataSnapshot.getKey();
-                for(PlaceList p : placeList){
-                    if(p.getId()==listID){
-                        placeList.remove(p);
-                        break;
+                MyListsAdapter adapter = (MyListsAdapter) recyclerView.getAdapter();
+                if(adapter != null) {
+                    ArrayList<PlaceList> listOfLists = (ArrayList<PlaceList>) adapter.getList();
+                    for (PlaceList p : listOfLists) {
+                        if (p.getId().equals(listID)) {
+                            adapter.getGroups().remove(p);
+                            break;
+                        }
                     }
+                    adapter.notifyDataSetChanged();
                 }
-                adapter.notifyDataSetChanged();
 
             }
 

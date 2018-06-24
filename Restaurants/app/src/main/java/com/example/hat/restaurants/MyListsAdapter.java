@@ -137,7 +137,7 @@ public class MyListsAdapter extends ExpandableRecyclerViewAdapter<ListViewHolder
                     notifyDataSetChanged();
                 }
             });
-        }else if(permission==PERMISSION_FOLLOW){
+        }else if(permission==PERMISSION_FOLLOW || permission==PERMISSION_SEARCH){
             holder.deleteView.setVisibility(View.GONE);
         }
         holder.setPlaceName(place.getName());
@@ -204,7 +204,5 @@ public class MyListsAdapter extends ExpandableRecyclerViewAdapter<ListViewHolder
         return permission;
     }
 
-   public void deletePlaceFromRecyclerView(RecyclerView recyclerView, int listIndex, int placeIndex){
 
-   }
 }

@@ -71,7 +71,7 @@ public class DatabaseController {
                 ArrayList<PlaceList> listOfLists = new ArrayList<>((ArrayList<PlaceList>)oldAdapter.getList());
                 Boolean newList = true;
                 for(PlaceList p : listOfLists){
-                    if(p.getId()==listID){
+                    if(p.getId().equals(listID)){
                         p=placeList;//TODO: Pot donar problemes si s'inicialitza desplegat perquè la llibreria Expandablelist no deixa canviar la llista del adapter a posteriori.
                         newList=false;
                         break;
