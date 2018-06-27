@@ -5,7 +5,7 @@ import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 
-import com.example.hat.restaurants.MyListsAdapter;
+import com.example.hat.restaurants.PlaceListsAdapter;
 import com.example.hat.restaurants.model.Place;
 import com.example.hat.restaurants.model.PlaceList;
 import com.google.firebase.auth.FirebaseAuth;
@@ -67,7 +67,7 @@ public class DatabaseController {
                 }
                 PlaceList placeList = new PlaceList(listName,listID,places);
 
-                MyListsAdapter oldAdapter =(MyListsAdapter)recyclerView.getAdapter();
+                PlaceListsAdapter oldAdapter =(PlaceListsAdapter)recyclerView.getAdapter();
                 ArrayList<PlaceList> listOfLists = new ArrayList<>((ArrayList<PlaceList>)oldAdapter.getList());
                 Boolean newList = true;
                 for(PlaceList p : listOfLists){
@@ -79,7 +79,7 @@ public class DatabaseController {
                 }
                 if(newList){
                     listOfLists.add(placeList);
-                    MyListsAdapter newAdapter = new MyListsAdapter(listOfLists,oldAdapter.getPermission(),recyclerView);
+                    PlaceListsAdapter newAdapter = new PlaceListsAdapter(listOfLists,oldAdapter.getPermission(),recyclerView);
                     recyclerView.setAdapter(newAdapter);
                 }
 

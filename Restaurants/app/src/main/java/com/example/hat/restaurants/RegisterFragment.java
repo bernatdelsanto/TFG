@@ -14,6 +14,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.example.hat.restaurants.model.DrawerLocker;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -27,7 +28,9 @@ import com.google.firebase.database.FirebaseDatabase;
  * A simple {@link Fragment} subclass.
  */
 public class RegisterFragment extends Fragment {
-    private Button loginButton;
+    private Button registerButton;
+    private Button cancelButton;
+
     private EditText textEmail;
     private EditText textUsername;
     private EditText textPassword1;
@@ -46,7 +49,8 @@ public class RegisterFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_register, container, false);
-        loginButton = view.findViewById(R.id.registerButton);
+        registerButton = view.findViewById(R.id.registerButton);
+        cancelButton = view.findViewById(R.id.cancelRegistrationButton);
         textEmail = view.findViewById(R.id.textEmailRegister);
         textUsername = view.findViewById(R.id.textUsernameRegister);
         textPassword1 =  view.findViewById(R.id.textPasswordRegister1);
@@ -54,13 +58,22 @@ public class RegisterFragment extends Fragment {
         progressDialog = new ProgressDialog(getActivity());
         firebaseAuth = FirebaseAuth.getInstance();
         databaseReference = FirebaseDatabase.getInstance().getReference("users");
-        loginButton.setOnClickListener(new View.OnClickListener() {
+        registerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 registerUser();
             }
         });
-
+        cancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getActivity().setTitle("Login");
+                LoginFragment loginFragment = new LoginFragment();
+                FragmentManager manager = getActivity().getSupportFragmentManager();
+                manager.beginTransaction().replace(R.id.mainLayout,loginFragment).commit();
+            }
+        });
+        ((DrawerLocker) getActivity()).setDrawerEnabled(false);
         return view;
     }
 
@@ -88,7 +101,7 @@ public class RegisterFragment extends Fragment {
                                                         progressDialog.dismiss();
                                                         Toast.makeText(getActivity(),"Successful login",Toast.LENGTH_LONG).show();
                                                         getActivity().setTitle("Discover");
-                                                        Discover discoverFragment = new Discover();
+                                                        DiscoverFragment discoverFragment = new DiscoverFragment();
                                                         FragmentManager manager = getActivity().getSupportFragmentManager();
                                                         manager.beginTransaction().replace(R.id.mainLayout,discoverFragment).commit();
                                                         String uID = task.getResult().getUser().getUid();

@@ -18,6 +18,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.hat.restaurants.model.DrawerLocker;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -112,6 +113,7 @@ public class LoginFragment extends Fragment {
                 manager.beginTransaction().replace(R.id.mainLayout,registerFragment).commit();
             }
         });
+        ((DrawerLocker) getActivity()).setDrawerEnabled(false);
 
         return view;
 

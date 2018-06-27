@@ -91,7 +91,7 @@ class PlaceViewHolder extends ChildViewHolder {
         this.placeName.setText(placeName);  ;
     }
 }
-public class MyListsAdapter extends ExpandableRecyclerViewAdapter<ListViewHolder,PlaceViewHolder> {
+public class PlaceListsAdapter extends ExpandableRecyclerViewAdapter<ListViewHolder,PlaceViewHolder> {
     public static final int PERMISSION_EDIT = 0;
     public static final int PERMISSION_FOLLOW = 1;
     public static final int PERMISSION_SEARCH = 2;
@@ -101,7 +101,7 @@ public class MyListsAdapter extends ExpandableRecyclerViewAdapter<ListViewHolder
 
     private int permission;
 
-    public MyListsAdapter(List<? extends ExpandableGroup> groups, int permission,RecyclerView recyclerView) {
+    public PlaceListsAdapter(List<? extends ExpandableGroup> groups, int permission, RecyclerView recyclerView) {
         super(groups);
         lists = (ArrayList<PlaceList>) groups;
         this.permission=permission;

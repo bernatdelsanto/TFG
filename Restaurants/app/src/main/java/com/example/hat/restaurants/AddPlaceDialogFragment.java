@@ -10,6 +10,7 @@ import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatDialogFragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -55,6 +56,7 @@ public class AddPlaceDialogFragment extends AppCompatDialogFragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_add_place_dialog, container, false);
+        Toolbar toolbar = view.findViewById(R.id.toolbarDialog);
         addButton = view.findViewById(R.id.addListButton);
         cancelButton = view.findViewById(R.id.cancelButton);
         recyclerView = view.findViewById(R.id.recyclerViewAddPlace);

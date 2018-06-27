@@ -20,6 +20,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.hat.restaurants.model.DrawerLocker;
 import com.example.hat.restaurants.model.PlaceList;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -31,16 +32,20 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, Discover.OnFragmentInteractionListener,ProfileFragment.OnFragmentInteractionListener,
+        implements NavigationView.OnNavigationItemSelectedListener, DiscoverFragment.OnFragmentInteractionListener,ProfileFragment.OnFragmentInteractionListener,
         LoginFragment.OnFragmentInteractionListener,MyListsFragment.OnFragmentInteractionListener, SearchListFragment.OnListFragmentInteractionListener,
-        FollowingListsFragment.OnFragmentInteractionListener{
+        FollowingListsFragment.OnFragmentInteractionListener, DrawerLocker {
 
 
 private FirebaseAuth firebaseAuth;
 private DatabaseReference databaseReference;
 private ProgressDialog progressDialog;
 private ActionBarDrawerToggle toggle;
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -76,7 +81,7 @@ private ActionBarDrawerToggle toggle;
         firebaseAuth = FirebaseAuth.getInstance();
         databaseReference = FirebaseDatabase.getInstance().getReference();
         if(firebaseAuth.getCurrentUser()!=null){
-            Discover discoverFragment = new Discover();
+            DiscoverFragment discoverFragment = new DiscoverFragment();
             setTitle("Discover");
             FragmentManager manager = MainActivity.this.getSupportFragmentManager();
             manager.beginTransaction().replace(R.id.mainLayout,discoverFragment).commit();
@@ -169,7 +174,7 @@ private ActionBarDrawerToggle toggle;
 
         } else if (id == R.id.nav_discover) {
             setTitle("Discover");
-            Discover discoverFragment = new Discover();
+            DiscoverFragment discoverFragment = new DiscoverFragment();
             FragmentManager manager = getSupportFragmentManager();
             manager.beginTransaction().replace(R.id.mainLayout,discoverFragment).commit();
 
@@ -210,7 +215,7 @@ private ActionBarDrawerToggle toggle;
                         if(task.isSuccessful()){
                             Toast.makeText(MainActivity.this,"Successful login",Toast.LENGTH_LONG).show();
 
-                            Discover discoverFragment = new Discover();
+                            DiscoverFragment discoverFragment = new DiscoverFragment();
                             setTitle("Discover");
                             FragmentManager manager = MainActivity.this.getSupportFragmentManager();
                             manager.beginTransaction().replace(R.id.mainLayout,discoverFragment).commit();
@@ -259,6 +264,7 @@ private ActionBarDrawerToggle toggle;
         View header=navigationView.getHeaderView(0);
         final TextView title = header.findViewById(R.id.textHeaderTitle);
         TextView subtitle = header.findViewById(R.id.textHeaderSubtitle);
+        setDrawerEnabled(true);
 
          databaseReference.child("users").child(FirebaseAuth.getInstance().getCurrentUser().getUid()).child("username").addValueEventListener(new ValueEventListener() {
              @Override
@@ -280,5 +286,13 @@ private ActionBarDrawerToggle toggle;
     @Override
     public void onListFragmentInteraction(PlaceList item) {
 
+    }
+
+    @Override
+    public void setDrawerEnabled(boolean enabled) {
+        int lockMode = enabled ? DrawerLayout.LOCK_MODE_UNLOCKED : DrawerLayout.LOCK_MODE_LOCKED_CLOSED;
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
+        drawer.setDrawerLockMode(lockMode);
+        toggle.setDrawerIndicatorEnabled(enabled);
     }
 }

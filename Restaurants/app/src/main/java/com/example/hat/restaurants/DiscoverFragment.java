@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.drawable.Icon;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -13,6 +14,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -44,6 +46,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
@@ -74,12 +77,12 @@ import static android.app.Activity.RESULT_OK;
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link Discover.OnFragmentInteractionListener} interface
+ * {@link DiscoverFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
- * Use the {@link Discover#newInstance} factory method to
+ * Use the {@link DiscoverFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class Discover extends Fragment implements OnMapReadyCallback , AddPlaceDialogFragment.OnInputSelected{
+public class DiscoverFragment extends Fragment implements OnMapReadyCallback, AddPlaceDialogFragment.OnInputSelected {
     //    // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
@@ -88,7 +91,7 @@ public class Discover extends Fragment implements OnMapReadyCallback , AddPlaceD
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
-    private  final String TAG = this.getTag();
+    private final String TAG = this.getTag();
 
     private OnFragmentInteractionListener mListener;
     private Marker focusedMarker;
@@ -105,9 +108,10 @@ public class Discover extends Fragment implements OnMapReadyCallback , AddPlaceD
     private FirebaseAuth firebaseAuth;
     private GeoDataClient geoDataClient;
     private FloatingActionButton addPlaceFloatingButton;
-    private List<Float> colors = Arrays.asList(DEFAULT_MARKER_HUE, BitmapDescriptorFactory.HUE_AZURE,BitmapDescriptorFactory.HUE_BLUE,BitmapDescriptorFactory.HUE_CYAN,BitmapDescriptorFactory.HUE_GREEN);
-    private int placeColor=0;
-    public Discover() {
+    private List<Float> colors = Arrays.asList(DEFAULT_MARKER_HUE, BitmapDescriptorFactory.HUE_AZURE, BitmapDescriptorFactory.HUE_BLUE, BitmapDescriptorFactory.HUE_CYAN, BitmapDescriptorFactory.HUE_GREEN);
+    private int placeColor = 0;
+
+    public DiscoverFragment() {
         // Required empty public constructor
     }
 
@@ -120,8 +124,8 @@ public class Discover extends Fragment implements OnMapReadyCallback , AddPlaceD
      * @return A new instance of fragment Discover.
      */
     // TODO: Rename and change types and number of parameters
-    public static Discover newInstance(String param1, String param2) {
-        Discover fragment = new Discover();
+    public static DiscoverFragment newInstance(String param1, String param2) {
+        DiscoverFragment fragment = new DiscoverFragment();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
@@ -140,7 +144,7 @@ public class Discover extends Fragment implements OnMapReadyCallback , AddPlaceD
 
 
         databaseReference = FirebaseDatabase.getInstance().getReference();
-        firebaseAuth= FirebaseAuth.getInstance();
+        firebaseAuth = FirebaseAuth.getInstance();
         geoDataClient = Places.getGeoDataClient(getContext());
         getActivity().setTitle("Discover");
     }
@@ -154,10 +158,10 @@ public class Discover extends Fragment implements OnMapReadyCallback , AddPlaceD
         addPlaceFloatingButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(focusedPlace!=null){
+                if (focusedPlace != null) {
                     FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                     AddPlaceDialogFragment newFragment = new AddPlaceDialogFragment();
-                    newFragment.setTargetFragment(Discover.this,1);
+                    newFragment.setTargetFragment(DiscoverFragment.this, 1); //It might generate problems due known Android Bug on fragments inside fragments.
                     FragmentTransaction transaction = fragmentManager.beginTransaction();
                     transaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
                     transaction.add(R.id.drawer_layout, newFragment).addToBackStack(null).commit();
@@ -169,10 +173,11 @@ public class Discover extends Fragment implements OnMapReadyCallback , AddPlaceD
 
         return view;
     }
+
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState){
-        super.onViewCreated(view,savedInstanceState);
-        SupportMapFragment mapFragment = (SupportMapFragment)getChildFragmentManager().findFragmentById(R.id.map);
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
     }
 
@@ -203,32 +208,32 @@ public class Discover extends Fragment implements OnMapReadyCallback , AddPlaceD
     @Override
     public void onMapReady(GoogleMap googleMap) {
         getLocationPermission();
-        map=googleMap;
-        if(LOCATION_PERMISSION){
+        map = googleMap;
+        if (LOCATION_PERMISSION) {
             mFusedLocationProviderclient = LocationServices.getFusedLocationProviderClient(getContext());
             map.setMyLocationEnabled(true);
-            try{
+            try {
                 Task location = mFusedLocationProviderclient.getLastLocation();
                 location.addOnCompleteListener(new OnCompleteListener() {
                     @Override
                     public void onComplete(@NonNull Task task) {
-                        if(task.isSuccessful()){
+                        if (task.isSuccessful()) {
                             Location currentLocation = (Location) task.getResult();
-                            if (currentLocation!=null){
-                                moveCamera(new LatLng(currentLocation.getLatitude(),currentLocation.getLongitude()),DEFAULT_ZOOM);
+                            if (currentLocation != null) {
+                                moveCamera(new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()), DEFAULT_ZOOM);
                             }
 
 
                         }
                     }
                 });
-            }catch(SecurityException e){
-                Log.e(TAG,"Get device location "+ e.getMessage());
+            } catch (SecurityException e) {
+                Log.e(TAG, "Get device location " + e.getMessage());
             }
-        }else{
-            LatLng pp = new LatLng(41.386613566833404,2.1640169620513916);
-            addMarker(pp, "Universitat de Barcelona",DEFAULT_MARKER_HUE);
-            moveCamera(pp,DEFAULT_ZOOM);
+        } else {
+            LatLng pp = new LatLng(41.386613566833404, 2.1640169620513916);
+            addMarker(pp, "Universitat de Barcelona", DEFAULT_MARKER_HUE);
+            moveCamera(pp, DEFAULT_ZOOM);
         }
 
         /*
@@ -248,20 +253,19 @@ public class Discover extends Fragment implements OnMapReadyCallback , AddPlaceD
 
     }
 
-    private void moveCamera(LatLng latLng, float zoom){
-        map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng,zoom));
-        Log.d(TAG,"MOVING CAMERA TO LAT:" + latLng.latitude + " LONG:"+ latLng.longitude+ " with ZOOM: "+zoom);
+    private void moveCamera(LatLng latLng, float zoom) {
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
+        Log.d(TAG, "MOVING CAMERA TO LAT:" + latLng.latitude + " LONG:" + latLng.longitude + " with ZOOM: " + zoom);
     }
 
     @Override
     public void sendInput(ArrayList<String> listsIds) {
-        //Send focusedplace to lists ids.
-        if(focusedPlace!=null){
-            databaseReference=FirebaseDatabase.getInstance().getReference("lists");
+        if (focusedPlace != null) {
+            databaseReference = FirebaseDatabase.getInstance().getReference("lists");
 
-            for(String s:listsIds) {
+            for (String s : listsIds) {
                 GeoFire geoFire = new GeoFire(databaseReference.child(s));
-                geoFire.setLocation(focusedPlace.getId(), new GeoLocation(focusedPlace.getLatLng().latitude, focusedPlace.getLatLng().longitude),new GeoFire.CompletionListener() {
+                geoFire.setLocation(focusedPlace.getId(), new GeoLocation(focusedPlace.getLatLng().latitude, focusedPlace.getLatLng().longitude), new GeoFire.CompletionListener() {
                     @Override
                     public void onComplete(String key, DatabaseError error) {
                         //TODO: TOAST ERROR
@@ -287,65 +291,72 @@ public class Discover extends Fragment implements OnMapReadyCallback , AddPlaceD
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
-    private void getLocationPermission(){
-        if(ContextCompat.checkSelfPermission(getActivity().getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION)!= PackageManager.PERMISSION_GRANTED){
-            requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION},LOCATION_PERMISSION_REQUEST_CODE);
-        }else{
+
+    private void getLocationPermission() {
+        if (ContextCompat.checkSelfPermission(getActivity().getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
+        } else {
             LOCATION_PERMISSION = true;
         }
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if(requestCode==LOCATION_PERMISSION_REQUEST_CODE){
-            if (grantResults[0]!=PackageManager.PERMISSION_GRANTED){
+        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
+            if (grantResults[0] != PackageManager.PERMISSION_GRANTED) {
                 android.os.Process.killProcess(android.os.Process.myPid());
                 System.exit(1);
             }
         }
-        LOCATION_PERMISSION=true;
+        LOCATION_PERMISSION = true;
     }
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        super.onCreateOptionsMenu(menu,inflater);
-        inflater.inflate(R.menu.menu_search,menu);
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.menu_search, menu);
         MenuItem item = menu.findItem(R.id.menu_search);
 
-        item.setOnActionExpandListener(new MenuItem.OnActionExpandListener(){
+        item.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
             @Override
             public boolean onMenuItemActionExpand(MenuItem item) {
-
-                try {
-                    final PlaceAutocomplete.IntentBuilder intentBuilder = new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_FULLSCREEN);
+                final PlaceAutocomplete.IntentBuilder intentBuilder = new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_FULLSCREEN);
 
 
-                    if(LOCATION_PERMISSION){
-                        Task location = mFusedLocationProviderclient.getLastLocation();
-                        location.addOnCompleteListener(new OnCompleteListener() {
-                            @Override
-                            public void onComplete(@NonNull Task task) {
-                                if(task.isSuccessful()){
-                                    Location currentLocation = (Location) task.getResult();
-                                    LatLng northEast = new LatLng(currentLocation.getLatitude()+DEFAULT_BOUND_BIAS_KILOMETERS/100,currentLocation.getLongitude()+DEFAULT_BOUND_BIAS_KILOMETERS/100);
-                                    LatLng southWest = new LatLng(currentLocation.getLatitude()-DEFAULT_BOUND_BIAS_KILOMETERS/100,currentLocation.getLongitude()-DEFAULT_BOUND_BIAS_KILOMETERS/100);
-
-                                    intentBuilder.setBoundsBias(new LatLngBounds(southWest,northEast));
-
-                                }
-                            }
-                        });
+                if (LOCATION_PERMISSION) {
+                    if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                        getLocationPermission();
                     }
-                    AutocompleteFilter typeFilter = new AutocompleteFilter.Builder().setTypeFilter(AutocompleteFilter.TYPE_FILTER_ESTABLISHMENT).build();
-                    intentBuilder.setFilter(typeFilter);
+                    Task location = mFusedLocationProviderclient.getLastLocation();
+                    location.addOnCompleteListener(new OnCompleteListener() {
+                        @Override
+                        public void onComplete(@NonNull Task task) {
+                            AutocompleteFilter typeFilter = new AutocompleteFilter.Builder().setTypeFilter(AutocompleteFilter.TYPE_FILTER_ESTABLISHMENT).build();
+                            intentBuilder.setFilter(typeFilter);
 
-                    Intent intent = intentBuilder.build(getActivity());
-                    startActivityForResult(intent,PLACE_AUTOCOMPLETE_REQUEST_CODE); //TODO: clean this mess
-                } catch (GooglePlayServicesRepairableException e) {
-                    // TODO: Handle the error.
-                } catch (GooglePlayServicesNotAvailableException e) {
-                    // TODO: Handle the error.
+                            if(task.isSuccessful()){
+                                Location currentLocation = (Location) task.getResult();
+                                LatLng northEast = new LatLng(currentLocation.getLatitude()+DEFAULT_BOUND_BIAS_KILOMETERS/100,currentLocation.getLongitude()+DEFAULT_BOUND_BIAS_KILOMETERS/100);
+                                LatLng southWest = new LatLng(currentLocation.getLatitude()-DEFAULT_BOUND_BIAS_KILOMETERS/100,currentLocation.getLongitude()-DEFAULT_BOUND_BIAS_KILOMETERS/100);
+
+                                intentBuilder.setBoundsBias(new LatLngBounds(southWest,northEast));
+
+                            }
+                            DiscoverFragment thisFragment = DiscoverFragment.this;
+                            Intent intent = null;
+                            try {
+                                intent = intentBuilder.build(thisFragment.getActivity());
+                                startActivityForResult(intent,PLACE_AUTOCOMPLETE_REQUEST_CODE);
+                            } catch (GooglePlayServicesRepairableException e) {
+                                e.printStackTrace();
+                            } catch (GooglePlayServicesNotAvailableException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    });
                 }
+
+
 
                 return false;
             }
@@ -357,28 +368,13 @@ public class Discover extends Fragment implements OnMapReadyCallback , AddPlaceD
 
         });
 
-        SearchView searchView = (SearchView)item.getActionView();
-
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                hideKeyboardFrom(getContext(),getView());
-                geoLogacate(query);
-                return true;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                return false;
-            }
-
-        });
 
         super.onCreateOptionsMenu(menu,inflater);
     }
     private Marker addMarker(LatLng latLng,String title,float hue){
         MarkerOptions option = new MarkerOptions();
-        option.position(latLng).title(title).icon(BitmapDescriptorFactory.defaultMarker(hue));
+        BitmapDescriptor thisIcon = BitmapDescriptorFactory.defaultMarker(hue);
+        option.position(latLng).title(title).icon(thisIcon);
         return map.addMarker(option);
     }
     private void geoLogacate(String query) {
@@ -421,18 +417,6 @@ public class Discover extends Fragment implements OnMapReadyCallback , AddPlaceD
                 moveCamera(place.getLatLng(),DEFAULT_ZOOM);
                 newFocusedPlace(place,place.getLatLng());
 
-                /*
-                addMarker(place.getLatLng(), (String) place.getName(),DEFAULT_MARKER_HUE);
-                String userUid =firebaseAuth.getCurrentUser().getUid();
-                databaseReference = FirebaseDatabase.getInstance().getReference(userUid);
-                GeoFire geoFire = new GeoFire(databaseReference);
-
-                geoFire.setLocation(place.getId(), new GeoLocation(place.getLatLng().latitude, place.getLatLng().longitude), new GeoFire.CompletionListener() {
-                    @Override
-                    public void onComplete(String key, DatabaseError error) {
-
-                    }
-                });*/
             } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
                 Status status = PlaceAutocomplete.getStatus(getActivity(), data);
                 // TODO: Handle the error.
@@ -507,18 +491,8 @@ public class Discover extends Fragment implements OnMapReadyCallback , AddPlaceD
                     Double longitudeD= (Double) location.child("1").getValue();
                     Float longitude = longitudeD.floatValue();
                     LatLng latLng = new LatLng(latitude,longitude);
-                    final Marker marker = addMarker(latLng,dataSnapshot.getKey(),placeColor);
-                    Task<PlaceBufferResponse> buffer = geoDataClient.getPlaceById(dataSnapshot.getKey());
-                    buffer.addOnSuccessListener(new OnSuccessListener<PlaceBufferResponse>() {
-                        @Override
-                        public void onSuccess(PlaceBufferResponse places) {
-                            Place place = places.get(0);
-                            if(place!=null){
-                                marker.setTitle(place.getName().toString());
-                            }
-                            places.release();
-                        }
-                    });
+                    addMarker(latLng,dataSnapshot.child("name").getValue(String.class),placeColor);
+
                 }
                 }
 

@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -21,15 +20,12 @@ import android.widget.SearchView;
 
 import com.example.hat.restaurants.model.Place;
 import com.example.hat.restaurants.model.PlaceList;
-import com.google.android.gms.flags.impl.DataUtils;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.similarity.JaroWinklerDistance;
 
 import java.util.ArrayList;
@@ -157,7 +153,7 @@ public class SearchListFragment extends Fragment {
 
     private void searchList(String listName){
         final String name = listName;
-        final MyListsAdapter adapter = new MyListsAdapter(searchResults, MyListsAdapter.PERMISSION_SEARCH,recyclerView);
+        final PlaceListsAdapter adapter = new PlaceListsAdapter(searchResults, PlaceListsAdapter.PERMISSION_SEARCH,recyclerView);
 
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -188,11 +184,11 @@ public class SearchListFragment extends Fragment {
                         //TODO: order places by JAROWINKLER distance
                         PlaceList placeList = new PlaceList(listName,dataSnapshot.getKey(),places);
 
-                        MyListsAdapter oldAdapter =(MyListsAdapter)recyclerView.getAdapter();
+                        PlaceListsAdapter oldAdapter =(PlaceListsAdapter)recyclerView.getAdapter();
                         ArrayList<PlaceList> listOfLists = new ArrayList<>((ArrayList<PlaceList>)oldAdapter.getList());
 
                         listOfLists.add(placeList);
-                        MyListsAdapter newAdapter = new MyListsAdapter(listOfLists,oldAdapter.getPermission(),recyclerView);
+                        PlaceListsAdapter newAdapter = new PlaceListsAdapter(listOfLists,oldAdapter.getPermission(),recyclerView);
                         recyclerView.setAdapter(newAdapter);
 
 

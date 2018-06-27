@@ -102,7 +102,7 @@ public class FollowingListsFragment extends Fragment {
             }
         });
         recyclerView = view.findViewById(R.id.listsView);
-        final MyListsAdapter adapter = new MyListsAdapter(placeList,MyListsAdapter.PERMISSION_FOLLOW,recyclerView);
+        final PlaceListsAdapter adapter = new PlaceListsAdapter(placeList, PlaceListsAdapter.PERMISSION_FOLLOW,recyclerView);
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
@@ -124,7 +124,7 @@ public class FollowingListsFragment extends Fragment {
             @Override
             public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
                 String listID = dataSnapshot.getKey();
-                MyListsAdapter adapter = (MyListsAdapter) recyclerView.getAdapter();
+                PlaceListsAdapter adapter = (PlaceListsAdapter) recyclerView.getAdapter();
                 if(adapter != null) {
                     ArrayList<PlaceList> listOfLists = (ArrayList<PlaceList>) adapter.getList();
                     for (PlaceList p : listOfLists) {
